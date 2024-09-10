@@ -7,18 +7,18 @@ environment:
   sdk: ^3.2.3
 
 dependencies:
-  analyzer: ^6.2.0
+  analyzer: ^6.7.0
   build: ^2.4.1
-  code_builder: ^4.9.0
-  dart_style: ^2.3.4
+  code_builder: ^4.10.0
+  dart_style: ^2.3.7
   dev: ^1.0.0
   retrofit_wrapper:
     git:
-      url: https://github.com/ebwood/retrofit_wrapper_tools
+      url: https://github.com/educup/retrofit_wrapper_tools
       ref: main
       path: retrofit_wrapper
   source_gen: ^1.5.0
 
 dev_dependencies:
-  lints: ^2.1.0
-  test: ^1.24.0
+  lints: ^2.1.1
+  test: ^1.25.8
