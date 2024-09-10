@@ -14,7 +14,7 @@ dependencies:
   dev: ^1.0.0
   retrofit_wrapper:
     git:
-      url: https://github.com/educup/retrofit_wrapper_tools
+      url: https://github.com/educup/retrofit_wrapper_tools.git
       ref: main
       path: retrofit_wrapper
   source_gen: ^1.5.0

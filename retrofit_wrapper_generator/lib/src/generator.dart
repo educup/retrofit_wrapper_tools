@@ -1,11 +1,11 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:build/src/builder/build_step.dart';
+import 'package:build/build.dart';
+import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:retrofit_wrapper/retrofit_wrapper.dart';
 import 'package:retrofit_wrapper_generator/src/model_visitor.dart';
 import 'package:source_gen/source_gen.dart';
-import 'package:retrofit_wrapper/retrofit_wrapper.dart';
-import 'package:code_builder/code_builder.dart';
 
 class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
   @override
@@ -29,7 +29,7 @@ class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
     // first check if is typedef alias name
     if (wrapperReturnClass != null) {
       wrapperReturnClassName = wrapperReturnClass.alias?.element.displayName ??
-          wrapperReturnClass.getDisplayString(withNullability: false);
+          wrapperReturnClass.getDisplayString();
 
       if (wrapperReturnClassName.contains('<')) {
         wrapperReturnClassName = wrapperReturnClassName.substring(
