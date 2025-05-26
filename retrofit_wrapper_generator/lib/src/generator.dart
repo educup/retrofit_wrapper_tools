@@ -10,7 +10,10 @@ import 'package:source_gen/source_gen.dart';
 class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
   @override
   generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) {
+    Element element,
+    ConstantReader annotation,
+    BuildStep buildStep,
+  ) {
     final visitor = ModelVisitor();
     // visit mixin
     for (var mixin in (element as ClassElement).mixins) {
@@ -28,12 +31,15 @@ class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
     DartType? wrapperReturnClass = annotation.peek('returnType')?.typeValue;
     // first check if is typedef alias name
     if (wrapperReturnClass != null) {
-      wrapperReturnClassName = wrapperReturnClass.alias?.element.displayName ??
+      wrapperReturnClassName =
+          wrapperReturnClass.alias?.element.displayName ??
           wrapperReturnClass.getDisplayString();
 
       if (wrapperReturnClassName.contains('<')) {
         wrapperReturnClassName = wrapperReturnClassName.substring(
-            0, wrapperReturnClassName.indexOf('<'));
+          0,
+          wrapperReturnClassName.indexOf('<'),
+        );
       }
     }
 
@@ -47,7 +53,9 @@ class RetrofitWrapperGenerator extends GeneratorForAnnotation<Wrapper> {
       bool containsFuture = returnTypeIgnoreFuture.startsWith('Future<');
       if (containsFuture) {
         returnTypeIgnoreFuture = returnTypeIgnoreFuture.substring(
-            'Future<'.length, returnTypeIgnoreFuture.length - 1);
+          'Future<'.length,
+          returnTypeIgnoreFuture.length - 1,
+        );
       }
       String wrapReturnType = wrapperReturnClassName == null
           ? returnTypeIgnoreFuture
@@ -66,7 +74,8 @@ return catchHandler(
       methods.add(methodBuilder.build());
     }
     // catchHandler method: if use default WrapperReturnClass then will add default implement behavior
-    String catchHandlerBlock = wrapperReturnClassName != null &&
+    String catchHandlerBlock =
+        wrapperReturnClassName != null &&
             wrapperReturnClassName == defaultWrapperReturnClassName
         ? '''
         T result = await callback();
@@ -74,39 +83,65 @@ return catchHandler(
     '''
         : "throw UnimplementedError('sub wrapper class need to implement this method');";
 
-    methods.add(Method((b) => b
-      ..returns = refer(
-          "Future<${wrapperReturnClassName == null ? 'T' : '$wrapperReturnClassName<T>'}>")
-      ..name = 'catchHandler<T>'
-      ..modifier = MethodModifier.async
-      ..requiredParameters.addAll([
-        Parameter((b) => b
-          ..type = refer('String')
-          ..name = 'methodName'),
-        Parameter((b) => b
-          ..type = refer('String')
-          ..name = 'type'),
-        Parameter((b) => b
-          ..type = refer('Function')
-          ..name = 'callback')
-      ])
-      ..body = Code(catchHandlerBlock)));
+    methods.add(
+      Method(
+        (b) => b
+          ..returns = refer(
+            "Future<${wrapperReturnClassName == null ? 'T' : '$wrapperReturnClassName<T>'}>",
+          )
+          ..name = 'catchHandler<T>'
+          ..modifier = MethodModifier.async
+          ..requiredParameters.addAll([
+            Parameter(
+              (b) => b
+                ..type = refer('String')
+                ..name = 'methodName',
+            ),
+            Parameter(
+              (b) => b
+                ..type = refer('String')
+                ..name = 'type',
+            ),
+            Parameter(
+              (b) => b
+                ..type = refer('Function')
+                ..name = 'callback',
+            ),
+          ])
+          ..body = Code(catchHandlerBlock),
+      ),
+    );
 
-    final wrapperClass = Class((b) => b
-      ..name = wrapperClassName
-      ..fields.add(Field((b) => b
-        ..modifier = FieldModifier.final$
-        ..type = refer(annotatedClassName)
-        ..name = classFieldName))
-      ..constructors
-          .add(Constructor((b) => b.requiredParameters.add(Parameter((b) => b
-            ..toThis = true
-            ..name = classFieldName))))
-      ..methods.addAll(methods));
+    final wrapperClass = Class(
+      (b) => b
+        ..name = wrapperClassName
+        ..fields.add(
+          Field(
+            (b) => b
+              ..modifier = FieldModifier.final$
+              ..type = refer(annotatedClassName)
+              ..name = classFieldName,
+          ),
+        )
+        ..constructors.add(
+          Constructor(
+            (b) => b.requiredParameters.add(
+              Parameter(
+                (b) => b
+                  ..toThis = true
+                  ..name = classFieldName,
+              ),
+            ),
+          ),
+        )
+        ..methods.addAll(methods),
+    );
 
     final librayClass = Library((b) => b.body.addAll([wrapperClass]));
 
-    final emitter = DartEmitter();
-    return DartFormatter().format('${librayClass.accept(emitter)}');
+    final emitter = DartEmitter(useNullSafetySyntax: true);
+    return DartFormatter(
+      languageVersion: DartFormatter.latestLanguageVersion,
+    ).format('${librayClass.accept(emitter)}');
   }
 }

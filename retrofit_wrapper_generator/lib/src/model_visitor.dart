@@ -17,7 +17,7 @@ class ModelVisitor extends SimpleElementVisitor<void> {
     handleVisitMethod(element);
   }
 
-  handleVisitMethod(MethodElement element) {
+  void handleVisitMethod(MethodElement element) {
     final methodBuilder = MethodBuilder()
       ..returns = refer(element.returnType.toString())
       ..name = element.name;
